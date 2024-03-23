@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
-import 'package:pvmp/config/PVMPConfigLOCAL.dart';
+import 'package:pvmp/config/PVMPConfigLOCAL.dart' as PVMPConfig;
 import 'package:pvmp/models/connexion.dart';
 import 'package:pvmp/models/user.dart';
 import 'package:pvmp/providers/auth.dart';
@@ -9,7 +9,7 @@ import 'package:pvmp/providers/auth.dart';
 class Users with ChangeNotifier {
   void update(Auth auth) {
     // Do some custom work based on myModel that may call `notifyListeners`
-    cnx = auth.connexion;
+    cnx = auth.cnx;
     notifyListeners();
   }
 

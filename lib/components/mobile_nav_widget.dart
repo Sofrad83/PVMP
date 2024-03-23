@@ -1,4 +1,3 @@
-import 'package:pvmp/main.dart';
 import 'package:pvmp/screen/home.dart';
 
 import '/flutter_flow/flutter_flow_theme.dart';

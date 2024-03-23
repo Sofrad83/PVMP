@@ -1,40 +1,81 @@
 import 'dart:convert';
+
+import 'package:another_flushbar/flushbar.dart';
+import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
+import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
-import 'package:pvmp/config/PVMPConfigLOCAL.dart';
+import 'package:pvmp/config/PVMPConfigLOCAL.dart' as PVMPConfig;
+import 'package:pvmp/flutter_flow/flutter_flow_theme.dart';
 import 'package:pvmp/models/connexion.dart';
+import 'package:pvmp/models/user.dart';
 import 'package:pvmp/providers/users.dart';
 
 /// Gestion de l'authentification avec le package provider
 class Auth with ChangeNotifier {
-  Connexion? _cnx;
-  Connexion? get connexion {
-    return _cnx;
+  bool isLogged = false;
+
+  Connexion? cnx;
+  Dio? dio;
+
+  void createDioInstance(){
+    /// Les options de base pour la requête http dio
+    BaseOptions options = BaseOptions(
+        baseUrl: PVMPConfig.BASE_URL,
+        headers: {
+          'MerchantId': PVMPConfig.MERCHAND_ID,
+          'ApiKey': PVMPConfig.API_KEY,
+          'Authorization': PVMPConfig.AUTHORIZATION,
+          "Accept": "application/json"
+        },
+        responseType: ResponseType.plain,
+        connectTimeout: Duration(milliseconds: 30000),
+        receiveTimeout: Duration(milliseconds: 30000),
+        persistentConnection: true,
+        followRedirects: true,
+        validateStatus: (code) {
+          if (code! >= 200) {
+            return true;
+          }
+          if(code < 500){
+            return true;
+          }
+          return false;
+        });
+
+    //on doit stocker la session dans les paramètres
+
+    dio = Dio(options);
+    CookieJar cookieJar = CookieJar();
+    dio!.interceptors.add(CookieManager(cookieJar));
   }
 
-  set connexion(Connexion? connexion) {
-    _cnx = connexion;
-    notifyListeners();
-  }
-
-  bool _isLogged = false;
-
-  bool get islogged {
-    return _isLogged;
-  }
-
-  set isLogged(bool value) {
-    _isLogged = value;
-    notifyListeners();
-  }
-
-  // Reset toutes les données (utile pour logof)
-  void clear() {
-    print('Clean de traders');
-    connexion = null;
-    isLogged = false;
-    notifyListeners();
+  Future<void> getSession() async {
+    try {
+      Response response = await dio!.get('/');
+      int? statusCode = response.statusCode;
+      String data = response.data;
+      
+      switch (statusCode) {
+        case 200:
+        case 201:
+          var responseJson = json.decode(data);
+          if(responseJson["logged"] == true){
+            isLogged = true;
+          }else{
+            isLogged = false;
+          }
+          break;
+        case 401:
+          isLogged = false;
+          break;
+        default:
+          throw FormatException(data, statusCode);
+      }
+    } on DioException catch (exception) {
+      print(exception);
+    }
   }
 
   /// Log out
@@ -44,53 +85,41 @@ class Auth with ChangeNotifier {
     clear();
   }
 
-  /// Les options de base pour la requête http dio
-  static BaseOptions options = BaseOptions(
-      baseUrl: PVMPConfig.BASE_URL,
-      // headers: {
-      //   'MerchantId': PVMPConfig.MERCHAND_ID,
-      //   'ApiKey': PVMPConfig.API_KEY,
-      //   'Authorization': PVMPConfig.AUTHORIZATION
-      // },
-      responseType: ResponseType.plain,
-      connectTimeout: Duration(milliseconds: 30000),
-      receiveTimeout: Duration(milliseconds: 30000),
-      validateStatus: (code) {
-        if (code! >= 200) {
-          return true;
-        }
+  // Reset toutes les données (utile pour logof)
+  void clear() {
+    print('Clean de AUTH');
+    cnx = null;
+    notifyListeners();
+  }
 
-        return false;
-      });
-
-  static Dio dio = Dio(options);
-
-  Future<void> getSession() async {
+  Future<void> login(String mail, String mdp) async {
     try {
-      Response response = await dio.post('/');
+      Response response = await dio!.post('/login', data: {
+        'email' : mail,
+        'password' : mdp,
+      });
       int? statusCode = response.statusCode;
-      String? data = response.data;
+      String data = response.data;
 
       print(statusCode);
       print(data);
-      // switch (statusCode) {
-      //   case 200:
-      //   case 201:
-      //     var responseJson = json.decode(response.data);
-      //     print('responseJson loginByMail - API Auth: $responseJson');
-      //     _cnx = Connexion.fromJson(responseJson);
-      //     isLogged = true;
-      //     break;
-      //   case 401:
-      //   case 404:
-      //   case 500:
-      //     responseStatusMessage = response.data;
-      //     throw FormatException(responseStatusMessage!, responseStatusCode);
-      //   default:
-      //     throw FormatException("Erreur lors de la connexion");
-      // }
-    } on DioException catch (exception) {
-      print(exception);
+      
+      switch (statusCode) {
+        case 200:
+        case 201:
+          var responseData = json.decode(data);
+          if(responseData["error"] == true){
+            throw FormatException(responseData["error_message"]);
+          }else{
+            //On complète la connexion
+            cnx = Connexion(user: User.fromJson(responseData["data"]));
+          }
+          break;
+        default:
+          throw FormatException(data, statusCode);
+      }
+    } on DioException catch (e) {
+      print(e);
     }
   }
 
