@@ -12,17 +12,12 @@ import 'package:pvmp/bloc/state/connexion_state.dart';
 import 'package:pvmp/models/connexion.dart';
 import 'package:pvmp/config/PVMPConfigLOCAL.dart' as PVMPConfig;
 import 'package:pvmp/models/user.dart';
+import 'package:pvmp/utilities/logger.dart';
 
 class ConnexionCubit extends Cubit<ConnexionState> {
   ConnexionCubit() : super(ConnexionLoadingState());
 
-  static Dio? dio;
-
-  Dio? getDio(){
-    return dio;
-  }
-
-  void createDioInstance() async{
+  static Future<Dio> getDioInstance() async{
     /// Les options de base pour la requête http dio
     BaseOptions options = BaseOptions(
         baseUrl: PVMPConfig.BASE_URL,
@@ -48,7 +43,7 @@ class ConnexionCubit extends Cubit<ConnexionState> {
         });
 
     
-    dio = Dio(options);
+    Dio dio = Dio(options);
 
     final Directory appDocDir = await getApplicationDocumentsDirectory();
     final String appDocPath = appDocDir.path;
@@ -56,12 +51,14 @@ class ConnexionCubit extends Cubit<ConnexionState> {
       ignoreExpires: false,
       storage: FileStorage(appDocPath + "/.cookies/"),
     );
-    dio!.interceptors.add(CookieManager(jar));
+    dio.interceptors.add(CookieManager(jar));
+
+    return dio;
   }
 
   Future<void> getSession() async {
     try {
-      Response response = await dio!.get('/');
+      Response response = await (await getDioInstance()).get('/');
       int? statusCode = response.statusCode;
       String data = response.data;
       var responseJson = json.decode(data);
@@ -80,13 +77,14 @@ class ConnexionCubit extends Cubit<ConnexionState> {
           emit(ConnexionErrorState(statusCode.toString()));
       }
     } on DioException catch (exception) {
+      logger.e(exception);
       emit(ConnexionErrorState("Impossible de récupérer la session"));
     }
   }
 
   Future<void> register(String name, String mail, String mdp) async {
     try {
-      Response response = await dio!.post('/register', data: {
+      Response response = await (await getDioInstance()).post('/register', data: {
         'name' : name,
         'email' : mail,
         'password' : mdp,
@@ -112,7 +110,7 @@ class ConnexionCubit extends Cubit<ConnexionState> {
 
   Future<void> login(String mail, String mdp) async {
     try {
-      Response response = await dio!.post('/login', data: {
+      Response response = await (await getDioInstance()).post('/login', data: {
         'email' : mail,
         'password' : mdp,
       });
@@ -140,7 +138,7 @@ class ConnexionCubit extends Cubit<ConnexionState> {
 
   Future<void> logout() async {
     try {
-      Response response = await dio!.post('/logout');
+      Response response = await (await getDioInstance()).post('/logout');
       int? statusCode = response.statusCode;
       String data = response.data;
       

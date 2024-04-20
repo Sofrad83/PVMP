@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logger/logger.dart';
-import 'package:provider/provider.dart';
 import 'package:pvmp/bloc/cubit/connexion_cubit.dart';
 import 'package:pvmp/bloc/state/connexion_state.dart';
-import 'package:pvmp/models/connexion.dart';
-import 'package:pvmp/providers/auth.dart';
 import 'package:pvmp/screen/auth/login.dart';
 import 'package:pvmp/screen/home.dart';
+import 'package:pvmp/widgets/fade_in_zoom_in.dart';
 
 class Splashscreen extends StatelessWidget {
-  Splashscreen({Key? key});
+  const Splashscreen({super.key});
   static const routeName = "Splashscreen";
   
   @override
@@ -49,56 +47,20 @@ class Splashscreen extends StatelessWidget {
             );
           }
         }
-        return Scaffold(
-          body: Stack(
-            fit: StackFit.expand,
-            children: [
-              Image.asset("assets/images/splash.png", fit: BoxFit.cover,),
-              Center(
-                child: Image.asset("assets/images/logo-transparent.png",),
-              )
-            ],
+        return SafeArea(
+          child: Scaffold(
+            body: Stack(
+              fit: StackFit.expand,
+              children: [
+                Image.asset("assets/images/splash.png", fit: BoxFit.cover,),
+                Center(
+                  child: FadeInZoomIn(child: Image.asset("assets/images/logo-transparent.png",)),
+                )
+              ],
+            ),
           ),
         );
       },
     );
   }
 }
-
-// class _SplashscreenState extends State<Splashscreen> {
-
-//   final scaffoldKey = GlobalKey<ScaffoldState>();
-
-//   void initSession() async{
-//     try{
-      
-//       Auth _authP = Provider.of<Auth>(context, listen: false);
-//       _authP.createDioInstance();
-//       await _authP.getSession();
-//       if(_authP.isLogged == true){
-//         Future.delayed(const Duration(seconds: 3), () {
-//           Navigator.of(context).pushReplacementNamed(HomePageScreen.routeName);
-//         });
-//       }else{
-//         Future.delayed(const Duration(seconds: 3), () {
-//           Navigator.of(context).pushReplacementNamed(Login.routeName);
-//         });
-//       }
-//     } on FormatException catch(e){
-//       print(e);
-//     }
-//   }
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     initSession();
-//   }
-
-//   @override
-//   void dispose() {
-//     super.dispose();
-//   }
-
-  
-// }

@@ -1,22 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:pvmp/flutter_flow/flutter_flow_theme.dart';
-import 'package:pvmp/models/routine.dart';
+import 'package:pvmp/models/json_model.dart';
+import 'package:pvmp/screen/routine_edit.dart';
+import 'package:quds_popup_menu/quds_popup_menu.dart';
+import 'package:flutter_sizer/flutter_sizer.dart';
 
 class RoutineRow extends StatelessWidget {
-  final Routine routine;
+  final Json routine;
+  final Function onThen;
+  final Function deleteCallback;
+
   
   const RoutineRow({
     super.key,
-    required this.routine
+    required this.routine,
+    required this.onThen,
+    required this.deleteCallback,
   });
 
   @override
   Widget build(BuildContext context) {
-    Size screenSize = MediaQuery.of(context).size;
     FlutterFlowTheme theme = FlutterFlowTheme.of(context);
     return Container(
-      width: screenSize.width * 0.9,
+      width: 90.w,
       padding: EdgeInsets.fromLTRB(10,5,0,5),
       decoration: BoxDecoration(
         border: Border.all(
@@ -45,16 +52,37 @@ class RoutineRow extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(routine.nom, style: theme.titleMedium,),
-              Container(width: screenSize.width*0.50, child: Text(routine.description, style: theme.bodySmall,),)
+              Text(routine["nom"], style: theme.titleMedium,),
+              Container(width: 50.w, child: Text(routine["description"], style: theme.bodySmall,),)
             ],
           ),
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              IconButton(onPressed: () => print("modif"), icon: FaIcon(FontAwesomeIcons.penToSquare, color: theme.primaryText,)),
-              IconButton(onPressed: () => print("delete"), icon: FaIcon(FontAwesomeIcons.xmark, color: theme.error,))
+              QudsPopupButton(
+                items: [
+                  QudsPopupMenuItem(
+                    leading: FaIcon(FontAwesomeIcons.penToSquare, color: theme.primaryText,),
+                    title: Text("Modifier", style: FlutterFlowTheme.of(context).bodyMedium,),
+                    onPressed: () {
+                      Navigator.of(context).pushNamed(RoutineEditScreen.routeName, arguments: routine).then((value) => onThen());
+                  }),
+                  QudsPopupMenuDivider(),
+                  QudsPopupMenuItem(
+                    leading: FaIcon(FontAwesomeIcons.xmark, color: theme.error,),
+                    title: Text("Supprimer", style: FlutterFlowTheme.of(context).bodyMedium,),
+                    onPressed: () {
+                      deleteCallback();
+                  }),
+                ],
+                child: Container(
+                  height: 75,
+                  width: 50,
+                  child: Center(child: Icon(Icons.more_vert)),
+                )
+                ,
+              )
             ],
           )
         ],

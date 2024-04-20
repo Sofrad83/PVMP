@@ -12,3 +12,5 @@ const String API_KEY = 'xFSiAPvd1s4rSmYm3VcagnaeZHLIo2UpVILxHCrVrD4CmDQ8xp68osqc
 
 /// Le type d'autorisation de l'API
 const String AUTHORIZATION = 'Basic ZGV2ZWxvcHBlbWVudEBjb3NtZWRpdGVycmFuZWUuY29tOndWWkl0UVRnRTZIREV0MnI=';
+
+

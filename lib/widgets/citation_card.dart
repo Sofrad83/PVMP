@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:pvmp/flutter_flow/flutter_flow_theme.dart';
-import 'package:pvmp/models/citation.dart';
+import 'package:flutter_sizer/flutter_sizer.dart';
+import 'package:pvmp/models/json_model.dart';
 
 class CitationCard extends StatelessWidget {
-  final Citation? citation;
+  final Json? citation;
   final bool isLoading;
   
   const CitationCard({
@@ -15,11 +15,10 @@ class CitationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Size screenSize = MediaQuery.of(context).size;
     FlutterFlowTheme theme = FlutterFlowTheme.of(context);
 
     return Container(
-      width: screenSize.width * 0.9,
+      width: 90.w,
       decoration: BoxDecoration(
         border: Border.all(
           color: theme.lineColor,
@@ -34,7 +33,7 @@ class CitationCard extends StatelessWidget {
             padding: EdgeInsets.fromLTRB(10, 20, 10, 10),
             child: Center(
               child: Text(
-                citation!.texte,
+                citation!["citation"],
                 style: TextStyle(
                   fontSize: 17,
                   fontStyle: FontStyle.italic,
@@ -52,7 +51,7 @@ class CitationCard extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.fromLTRB(0, 0, 10, 10), 
                 child: Text(
-                  "- ${citation!.auteur} -",
+                  "- ${citation!["auteur"]} -",
                   style: TextStyle(
                     fontSize: 15,
                     fontFamily: theme.bodyMedium.fontFamily,

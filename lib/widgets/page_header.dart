@@ -17,12 +17,14 @@ class PageHeader extends StatelessWidget {
   final String headerTitle;
   final String headerDescription;
   final Function logoutCallback;
+  final bool canPop;
 
   const PageHeader({
     super.key, 
     required this.headerTitle,
     required this.headerDescription,
-    required this.logoutCallback
+    required this.logoutCallback,
+    this.canPop = true
   });
 
   /// Déconnexion
@@ -39,7 +41,7 @@ class PageHeader extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.max,
       children: [
-        SizedBox(height: 35,),
+        SizedBox(height: 10,),
         Row(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.start,
@@ -52,6 +54,14 @@ class PageHeader extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.max,
                   children: [
+                    Navigator.of(context).canPop() && canPop == true ?
+                    InkWell(
+                      onTap: () => Navigator.of(context).pop(),
+                      child: Container(
+                        width: 50,
+                        child: Center(child: FaIcon(FontAwesomeIcons.caretLeft, color: FlutterFlowTheme.of(context).primaryText, size: 35,)),
+                      ),
+                    ) : SizedBox(),
                     Expanded(
                       flex: 87,
                       child: Align(
@@ -105,49 +115,6 @@ class PageHeader extends StatelessWidget {
                           children: [
                             QudsPopupButton(
                               items: [
-                                QudsPopupMenuWidget(
-                                  builder: (context) => Container(
-                                    height: 75,
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Container(
-                                          padding: EdgeInsets.all(5),
-                                          width: 40.0,
-                                          height: 40.0,
-                                          decoration: BoxDecoration(
-                                            boxShadow: [
-                                              BoxShadow(
-                                                blurRadius: 4.0,
-                                                color:
-                                                    Color(0x33000000),
-                                                offset:
-                                                    Offset(0.0, 2.0),
-                                              )
-                                            ],
-                                            borderRadius:
-                                                BorderRadius.circular(
-                                                    16.0),
-                                          ),
-                                          child: ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(
-                                                    16.0),
-                                            child: Image.asset(
-                                              'assets/images/logo.png',
-                                              fit: BoxFit.fitHeight,
-                                              alignment: Alignment(
-                                                  -0.9, 0.0),
-                                            ),
-                                          ),
-                                        ),
-                                        SizedBox(width: 5,),
-                                        Text("PVMP", style: FlutterFlowTheme.of(context).bodyLarge,)
-                                      ],
-                                  ),
-                                )
-                              ),
-                              QudsPopupMenuDivider(),
                               QudsPopupMenuItem(
                                 leading: FaIcon(FontAwesomeIcons.dumbbell, color: FlutterFlowTheme.of(context).primary,),
                                 title: Text("S'exercer", style: FlutterFlowTheme.of(context).bodyMedium,),
@@ -156,14 +123,20 @@ class PageHeader extends StatelessWidget {
                               }),
                               QudsPopupMenuDivider(),
                               QudsPopupMenuItem(
-                                leading: FaIcon(FontAwesomeIcons.dumbbell, color: FlutterFlowTheme.of(context).primary,),
+                                leading: FaIcon(
+                                  FontAwesomeIcons.chartLine,
+                                  color: FlutterFlowTheme.of(context).secondary,
+                                ),
                                 title: Text("LeaderBoard", style: FlutterFlowTheme.of(context).bodyMedium,),
                                 onPressed: () {
                                   Navigator.of(context).pushNamed(LeaderBoardScreen.routeName);
                               }),
                               QudsPopupMenuDivider(),
                               QudsPopupMenuItem(
-                                leading: FaIcon(FontAwesomeIcons.dumbbell, color: FlutterFlowTheme.of(context).primary,),
+                                leading: FaIcon(
+                                  FontAwesomeIcons.calendarDays,
+                                  color: FlutterFlowTheme.of(context).warning,
+                                ),
                                 title: Text("Plan d'entrainement", style: FlutterFlowTheme.of(context).bodyMedium,),
                                 onPressed: () {
                                   Navigator.of(context).pushNamed(TrainingPlanScreen.routeName);
@@ -177,21 +150,30 @@ class PageHeader extends StatelessWidget {
                               // }),
                               QudsPopupMenuDivider(),
                               QudsPopupMenuItem(
-                                leading: FaIcon(FontAwesomeIcons.dumbbell, color: FlutterFlowTheme.of(context).primary,),
+                                leading: FaIcon(
+                                  FontAwesomeIcons.repeat,
+                                  color: FlutterFlowTheme.of(context).info,
+                                ),
                                 title: Text("Routines", style: FlutterFlowTheme.of(context).bodyMedium,),
                                 onPressed: () {
                                   Navigator.of(context).pushNamed(RoutineScreen.routeName);
                               }),
                               QudsPopupMenuDivider(),
                               QudsPopupMenuItem(
-                                leading: FaIcon(FontAwesomeIcons.dumbbell, color: FlutterFlowTheme.of(context).primary,),
+                                leading: FaIcon(
+                                  FontAwesomeIcons.userGroup,
+                                  color: const Color.fromARGB(255, 255, 81, 0),
+                                ),
                                 title: Text("Amis", style: FlutterFlowTheme.of(context).bodyMedium,),
                                 onPressed: () {
                                   Navigator.of(context).pushNamed(MyFriendsScreen.routeName);
                               }),
                               QudsPopupMenuDivider(),
                               QudsPopupMenuItem(
-                                leading: FaIcon(FontAwesomeIcons.dumbbell, color: FlutterFlowTheme.of(context).primary,),
+                                leading: FaIcon(
+                                  FontAwesomeIcons.circleUser,
+                                  color: FlutterFlowTheme.of(context).primaryText,
+                                ),
                                 title: Text("Mon compte", style: FlutterFlowTheme.of(context).bodyMedium,),
                                 onPressed: () {
                                   Navigator.of(context).pushNamed(MyAccountScreen.routeName);

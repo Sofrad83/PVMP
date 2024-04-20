@@ -1,32 +1,27 @@
-import 'dart:io';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logger/logger.dart';
 import 'package:pvmp/bloc/cubit/citation_cubit.dart';
 import 'package:pvmp/bloc/cubit/connexion_cubit.dart';
 import 'package:pvmp/bloc/state/citation_state.dart';
 import 'package:pvmp/bloc/state/connexion_state.dart';
-import 'package:pvmp/models/citation.dart';
 import 'package:pvmp/screen/auth/login.dart';
 import 'package:pvmp/screen/leaderboard.dart';
 import 'package:pvmp/screen/my_friends.dart';
 import 'package:pvmp/screen/routine.dart';
 import 'package:pvmp/screen/training/choose_routine.dart';
 import 'package:pvmp/screen/training_plan.dart';
+import 'package:pvmp/utilities/logger.dart';
 import 'package:pvmp/widgets/citation_card.dart';
 import 'package:pvmp/widgets/home_menu_element_widget.dart';
 import 'package:pvmp/widgets/page_header.dart';
 
-import '/components/mobile_nav_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
-
 class HomePageScreen extends StatefulWidget {
-  const HomePageScreen({Key? key});
+  const HomePageScreen({super.key});
   static const routeName = "HomePage";
   @override
   State<HomePageScreen> createState() => _HomePageScreenState();
@@ -71,10 +66,10 @@ class _HomePageScreenState extends State<HomePageScreen>
           callback: () => Navigator.of(context).pushNamed(ChooseRoutineScreen.routeName),),
       HomeMenuElementWidget(
           icon: FaIcon(
-            FontAwesomeIcons.dumbbell,
-            color: FlutterFlowTheme.of(context).primary,
+            FontAwesomeIcons.chartLine,
+            color: FlutterFlowTheme.of(context).secondary,
           ),
-          iconColor: FlutterFlowTheme.of(context).primary,
+          iconColor: FlutterFlowTheme.of(context).secondary,
           title: "LeaderBoard",
           titleStyle: FlutterFlowTheme.of(context).titleMedium,
           description: "Comparez vos performances avec celles de vos amis",
@@ -82,10 +77,10 @@ class _HomePageScreenState extends State<HomePageScreen>
           callback: () => Navigator.of(context).pushNamed(LeaderBoardScreen.routeName),),
       HomeMenuElementWidget(
           icon: FaIcon(
-            FontAwesomeIcons.dumbbell,
-            color: FlutterFlowTheme.of(context).primary,
+            FontAwesomeIcons.calendarDays,
+            color: FlutterFlowTheme.of(context).warning,
           ),
-          iconColor: FlutterFlowTheme.of(context).primary,
+          iconColor: FlutterFlowTheme.of(context).warning,
           title: "Plan d'entrainement",
           titleStyle: FlutterFlowTheme.of(context).titleMedium,
           description: "Planifiez vos entrainements sur la semaine",
@@ -102,10 +97,10 @@ class _HomePageScreenState extends State<HomePageScreen>
       // ),
       HomeMenuElementWidget(
           icon: FaIcon(
-            FontAwesomeIcons.dumbbell,
-            color: FlutterFlowTheme.of(context).primary,
+            FontAwesomeIcons.repeat,
+            color: FlutterFlowTheme.of(context).info,
           ),
-          iconColor: FlutterFlowTheme.of(context).primary,
+          iconColor: FlutterFlowTheme.of(context).info,
           title: "Routines",
           titleStyle: FlutterFlowTheme.of(context).titleMedium,
           description: "Gérez vos routines d'entrainement",
@@ -113,10 +108,10 @@ class _HomePageScreenState extends State<HomePageScreen>
           callback: () => Navigator.of(context).pushNamed(RoutineScreen.routeName),),
       HomeMenuElementWidget(
           icon: FaIcon(
-            FontAwesomeIcons.dumbbell,
-            color: FlutterFlowTheme.of(context).primary,
+            FontAwesomeIcons.userGroup,
+            color: const Color.fromARGB(255, 255, 81, 0),
           ),
-          iconColor: FlutterFlowTheme.of(context).primary,
+          iconColor: const Color.fromARGB(255, 255, 81, 0),
           title: "Amis",
           titleStyle: FlutterFlowTheme.of(context).titleMedium,
           description: "Ajouter des amis grâce à votre code amis unique",
@@ -124,10 +119,10 @@ class _HomePageScreenState extends State<HomePageScreen>
           callback: () => Navigator.of(context).pushNamed(MyFriendsScreen.routeName),),
       HomeMenuElementWidget(
           icon: FaIcon(
-            FontAwesomeIcons.dumbbell,
-            color: FlutterFlowTheme.of(context).primary,
+            FontAwesomeIcons.circleUser,
+            color: FlutterFlowTheme.of(context).primaryText,
           ),
-          iconColor: FlutterFlowTheme.of(context).primary,
+          iconColor: FlutterFlowTheme.of(context).primaryText,
           title: "Mon compte",
           titleStyle: FlutterFlowTheme.of(context).titleMedium,
           description: "Gérez les informations de votre compte",
@@ -137,30 +132,27 @@ class _HomePageScreenState extends State<HomePageScreen>
 
     return BlocConsumer<ConnexionCubit, ConnexionState>(
       listener: (context, state) {
-        if (state is ConnexionErrorState) {
-          Logger().e(state.error);
-        }
-      },
-      builder: (context, state) {
         if (state is ConnexionLoadedState) {
           if (state.connexion == null) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               Navigator.of(context).pushNamedAndRemoveUntil(Login.routeName, (route) => false);
             });
           }
-          return BlocProvider(
-            create: (context) => CitationCubit(dio: context.read<ConnexionCubit>().getDio()!),
-            child: BlocConsumer<CitationCubit, CitationState>(
-              listener: (context, state) {
-                if (state is CitationErrorState) {
-                  Logger().e(state.error);
-                }
-              },
-              builder: (context, state) {
-                if(state is CitationLoadingState){
-                  context.read<CitationCubit>().getRandomCitation();
-                }
-                return Scaffold(
+        }
+      },
+      builder: (context, state) {
+        return BlocConsumer<CitationCubit, CitationState>(
+            listener: (context, state) {
+              if (state is CitationErrorState) {
+                Logger().e(state.error);
+              }
+            },
+            builder: (context, state) {
+              if(state is CitationLoadingState){
+                context.read<CitationCubit>().getRandomCitation();
+              }
+              return SafeArea(
+                child: Scaffold(
                   key: scaffoldKey,
                   backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
                   body: Stack(
@@ -185,13 +177,14 @@ class _HomePageScreenState extends State<HomePageScreen>
                                       children: [
                                         Padding(
                                           padding: EdgeInsetsDirectional.fromSTEB(
-                                              16.0, 24.0, 16.0, 0.0),
+                                              16.0, 0.0, 16.0, 0.0),
                                           child: Column(
                                             mainAxisSize: MainAxisSize.max,
                                             children: [
                                               PageHeader(
                                                 headerTitle: "PVMP",
-                                                headerDescription: "",
+                                                headerDescription: "Accueil",
+                                                canPop: false,
                                                 logoutCallback: () => context
                                                     .read<ConnexionCubit>()
                                                     .logout(),
@@ -282,12 +275,10 @@ class _HomePageScreenState extends State<HomePageScreen>
                         ],
                       ),
                     ],
-                  ));
-              },
-            ),
+                  )),
+              );
+            },
           );
-        }
-        return Container();
       },
     );
   }

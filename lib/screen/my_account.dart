@@ -5,8 +5,10 @@ class MyAccountScreen extends StatelessWidget {
   
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: Text("MyAccountScreen")),
+    return SafeArea(
+      child: const Scaffold(
+        body: Center(child: Text("MyAccountScreen")),
+      ),
     );
   }
 }

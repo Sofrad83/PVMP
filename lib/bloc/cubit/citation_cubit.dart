@@ -1,26 +1,17 @@
 
 import 'dart:convert';
-import 'dart:io';
-
-import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
-import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logger/logger.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:pvmp/bloc/cubit/connexion_cubit.dart';
 import 'package:pvmp/bloc/state/citation_state.dart';
-import 'package:pvmp/bloc/state/connexion_state.dart';
-import 'package:pvmp/models/citation.dart';
-import 'package:pvmp/models/connexion.dart';
-import 'package:pvmp/config/PVMPConfigLOCAL.dart' as PVMPConfig;
-import 'package:pvmp/models/user.dart';
 
 class CitationCubit extends Cubit<CitationState> {
-  CitationCubit({required this.dio}) : super(CitationLoadingState());
-  Dio dio;
+  CitationCubit() : super(CitationLoadingState());
 
   Future<void> getRandomCitation() async {
     try {
+      Dio dio = await ConnexionCubit.getDioInstance();
       Response response = await dio.get('/citation/rand');
       int? statusCode = response.statusCode;
       String data = response.data;
@@ -33,7 +24,7 @@ class CitationCubit extends Cubit<CitationState> {
           emit(CitationErrorState(responseData["error_message"]));
         }else{
           //On complète la connexion
-          emit(CitationLoadedState(Citation.fromJson(responseData)));
+          emit(CitationLoadedState(responseData));
         }
       }else{
         emit(CitationErrorState(data));

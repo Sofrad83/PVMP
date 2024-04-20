@@ -1,16 +1,12 @@
-import 'package:pvmp/models/citation.dart';
+import 'package:pvmp/models/json_model.dart';
 
 abstract class CitationState {}
 
 class CitationLoadingState extends CitationState {}
 
 class CitationLoadedState extends CitationState {
-  final Citation? citation;
+  final Json? citation;
   CitationLoadedState(this.citation);
-
-  Citation? getCitation(){
-    return citation;
-  }
 }
 
 class CitationErrorState extends CitationState {

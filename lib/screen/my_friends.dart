@@ -5,8 +5,10 @@ class MyFriendsScreen extends StatelessWidget {
   
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: Text("MyFriendsScreen")),
+    return SafeArea(
+      child: const Scaffold(
+        body: Center(child: Text("MyFriendsScreen")),
+      ),
     );
   }
 }

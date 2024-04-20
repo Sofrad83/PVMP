@@ -23,39 +23,41 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Forgot Password'),
-      ),
-      body: Form(
-        key: _formKey,
-        child: Column(
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextFormField(
-                decoration: InputDecoration(
-                  labelText: 'Email',
-                  hintText: 'Enter your email address',
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Forgot Password'),
+        ),
+        body: Form(
+          key: _formKey,
+          child: Column(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextFormField(
+                  decoration: InputDecoration(
+                    labelText: 'Email',
+                    hintText: 'Enter your email address',
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your email';
+                    }
+                    // Ajoutez ici d'autres validations si nécessaire, comme la validation du format de l'email.
+                    return null;
+                  },
+                  onSaved: (value) => _email = value ?? '',
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your email';
-                  }
-                  // Ajoutez ici d'autres validations si nécessaire, comme la validation du format de l'email.
-                  return null;
-                },
-                onSaved: (value) => _email = value ?? '',
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16.0),
-              child: ElevatedButton(
-                onPressed: _submit,
-                child: Text('Reset Password'),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                child: ElevatedButton(
+                  onPressed: _submit,
+                  child: Text('Reset Password'),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
