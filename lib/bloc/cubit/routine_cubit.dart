@@ -2,24 +2,20 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pvmp/bloc/cubit/connexion_cubit.dart';
+import 'package:pvmp/bloc/provider/routine_provider.dart';
 import 'package:pvmp/bloc/state/routine_state.dart';
+import 'package:pvmp/utilities/logger.dart';
 
 class RoutineCubit extends Cubit<RoutineState> {
-  RoutineCubit() : super(RoutineLoadingState());
+  RoutineCubit() : super(RoutineState());
 
-  void reload(){
-    emit(RoutineLoadingState());
-  }
-
-  void error(String error){
-    emit(RoutineErrorState(error));
+  void reset(){
+    emit(RoutineState());
   }
 
   void getAllRoutines() async {
     try {
-      Dio dio = await ConnexionCubit.getDioInstance();
-      Response response = await dio.get('/routine/get-all');
+      Response response = await RoutineProvider.getAllRoutines();
       int? statusCode = response.statusCode;
       String data = response.data;
       
@@ -28,79 +24,17 @@ class RoutineCubit extends Cubit<RoutineState> {
         case 201:
           var responseData = json.decode(data);
           if(responseData["error"] == true){
-            emit(RoutineErrorState(responseData["error_message"]));
+            emit(state.copyWith(isError: true, errorMessage: responseData["error_message"], isLoading: false));
           }else{
-
-            emit(RoutineLoadedState(mesRoutines: responseData["data"]));
+            emit(state.copyWith(routines: responseData["data"], isError: false, isLoading: false));
           }
           break;
         default:
-          emit(RoutineErrorState(data));
+          emit(state.copyWith(isError: true, errorMessage: "Une erreur est survenue lors de la récupération des routines. Actualisez cette page.", isLoading: false));
       }
     } on DioException catch (e) {
-      print(e);
-    }
-  }
-
-  void getAllRoutinesLastSeries() async {
-    try {
-      Dio dio = await ConnexionCubit.getDioInstance();
-      Response response = await dio.get('/routine/get-all-last-series');
-      int? statusCode = response.statusCode;
-      String data = response.data;
-      
-      switch (statusCode) {
-        case 200:
-        case 201:
-          var responseData = json.decode(data);
-          if(responseData["error"] == true){
-            emit(RoutineErrorState(responseData["error_message"]));
-          }else{
-
-            emit(RoutineLoadedState(mesRoutines: responseData["data"]));
-          }
-          break;
-        default:
-          emit(RoutineErrorState(data));
-      }
-    } on DioException catch (e) {
-      print(e);
-    }
-  }
-
-  void store({
-    required String nom,
-    required String description,
-    required List exos,
-    int? id
-  }) async {
-    try {
-      Map<String, dynamic> data = {
-        "nom" : nom,
-        "description" : description,
-        "id" : id
-      };
-      List exosId = [];
-      exos.forEach((element) {
-        exosId.add(element["id"]);
-      });
-      data.addAll({"exos" : exosId.toString()});
-      FormData formData = FormData.fromMap(data);
-
-
-      Dio dio = await ConnexionCubit.getDioInstance();
-      Response response = await dio.post('/routine/store', data: formData);
-      int? statusCode = response.statusCode;
-      String rep = response.data;
-
-      if(statusCode! < 300){
-        var responseData = json.decode(rep);
-        emit(RoutineStoreDoneState(responseData["message"]));
-      }else{
-        emit(RoutineErrorState("Une erreur est survenue lors de l'enregistrement de la routine"));
-      }
-    } on DioException catch (e) {
-      print(e);
+      logger.e(e);
+      emit(state.copyWith(isError: true, errorMessage: "Une erreur est survenue lors de la récupération des routines. Actualisez cette page.", isLoading: false));
     }
   }
 
@@ -108,21 +42,17 @@ class RoutineCubit extends Cubit<RoutineState> {
     required int id
   }) async {
     try {
-      Dio dio = await ConnexionCubit.getDioInstance();
-      Map<String, dynamic> data = {
-        "id" : id
-      };
-      FormData formData = FormData.fromMap(data);
-      Response response = await dio.post('/routine/delete', data: formData);
+      Response response = await RoutineProvider.delete(id: id);
       int? statusCode = response.statusCode;
 
       if(statusCode! < 300){
-        emit(RoutineLoadingState());
+        reset();
       }else{
-        emit(RoutineErrorState("Une erreur est survenue lors de l'enregistrement de la routine"));
+        emit(state.copyWith(isError: true, errorMessage: "Une erreur est survenue lors de la suppression de la routine"));
       }
     } on DioException catch (e) {
-      print(e);
+      logger.e(e);
+      emit(state.copyWith(isError: true, errorMessage: "Une erreur est survenue lors de la suppression de la routine"));
     }
   }
 }

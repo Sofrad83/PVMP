@@ -2,17 +2,14 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pvmp/bloc/cubit/connexion_cubit.dart';
+import 'package:pvmp/bloc/provider/seance_provider.dart';
 import 'package:pvmp/bloc/state/training_state.dart';
 import 'package:pvmp/models/json_model.dart';
 import 'package:pvmp/utilities/logger.dart';
 
 class TrainingCubit extends Cubit<TrainingState> {
-  TrainingCubit() : super(TrainingLoadingState());
+  TrainingCubit() : super(TrainingState());
 
-  void reset(){
-    emit(TrainingLoadingState());
-  }
 
   void init({required Json routine}){
     (routine["exercices"] as List).forEach((exo) {
@@ -22,11 +19,11 @@ class TrainingCubit extends Cubit<TrainingState> {
     });
     logger.d(routine);
 
-    emit(TrainingLoadedState(routine: routine));
+    emit(state.copyWith(routine: routine, isLoading: false));
   }
 
   void removeSerie({required Json serie}){
-    Json maRoutine = (state as TrainingLoadedState).routine;
+    Json maRoutine = state.routine!;
     (maRoutine["exercices"] as List).forEach((exo) {
       Json? serieToRemove;
       (exo["series"] as List).forEach((maSerie) {
@@ -44,11 +41,11 @@ class TrainingCubit extends Cubit<TrainingState> {
       }
     });
 
-    emit(TrainingLoadedState(routine: maRoutine));
+    emit(state.copyWith(routine: maRoutine));
   }
 
   void confirmSerie({required Json serie}){
-    Json maRoutine = (state as TrainingLoadedState).routine;
+    Json maRoutine = state.routine!;
     (maRoutine["exercices"] as List).forEach((exo) {
       (exo["series"] as List).forEach((maSerie) {
         if(maSerie["serie_number"] == serie["serie_number"] && maSerie["exercice_id"] == serie["exercice_id"]){
@@ -57,11 +54,11 @@ class TrainingCubit extends Cubit<TrainingState> {
       });
     });
 
-    emit(TrainingLoadedState(routine: maRoutine));
+    emit(state.copyWith(routine: maRoutine));
   }
 
   void addSerie({required Json serie}){
-    Json maRoutine = (state as TrainingLoadedState).routine;
+    Json maRoutine = state.routine!;
     (maRoutine["exercices"] as List).forEach((exo) {
       if(exo['id'] == serie['exercice_id']){
         serie["done"] = true;
@@ -72,33 +69,23 @@ class TrainingCubit extends Cubit<TrainingState> {
       }
     });
     
-    emit(TrainingLoadedState(routine: maRoutine));
+    emit(state.copyWith(routine: maRoutine));
   }
 
   Future<void> storeSeance({required Json routine}) async{
     try {
-      List mesSeries = [];
-      (routine["exercices"] as List).forEach((exercice) {
-        mesSeries.addAll(exercice["series"]);
-      });
-      Map<String, dynamic> data = {
-        "series" : json.encode(mesSeries),
-      };
-      FormData formData = FormData.fromMap(data);
-
-
-      Dio dio = await ConnexionCubit.getDioInstance();
-      Response response = await dio.post('/seance/store', data: formData);
+      Response response = await SeanceProvider.store(routine: routine);
       int? statusCode = response.statusCode;
       Json responseData = json.decode(response.data);
 
       if(statusCode! < 300){
-        emit(TrainingStoreDoneState(volumeLastSeance: double.parse(responseData["data"]["volume"].toString())));
+        emit(state.copyWith(storeDone: true, volume: double.parse(responseData["data"]["volume"].toString())));
       }else{
-        emit(TrainingErrorState("Une erreur est survenue lors de l'enregistrement de la séance"));
+        emit(state.copyWith(isError: true, isLoading: false, errorMessage: "Une erreur est survenue lors de l'enregistrement de la séance"));
       }
     } on DioException catch (e) {
-      print(e);
+      logger.e(e);
+      emit(state.copyWith(isError: true, isLoading: false, errorMessage: "Une erreur est survenue lors de l'enregistrement de la séance"));
     }
   }
 }

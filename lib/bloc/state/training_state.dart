@@ -1,21 +1,31 @@
 
 import 'package:pvmp/models/json_model.dart';
 
-abstract class TrainingState {}
+class TrainingState {
+  Json? routine;
+  bool isLoading;
+  bool isError;
+  String? errorMessage;
+  bool storeDone;
+  double? volume;
 
-class TrainingLoadingState extends TrainingState {}
+  TrainingState({this.routine, this.isLoading = true, this.isError = false, this.errorMessage, this.storeDone = false, this.volume});
 
-class TrainingLoadedState extends TrainingState {
-  Json routine;
-  TrainingLoadedState({required this.routine});
-}
-
-class TrainingErrorState extends TrainingState {
-  final String error;
-  TrainingErrorState(this.error);
-}
-
-class TrainingStoreDoneState extends TrainingState {
-  final double volumeLastSeance;
-  TrainingStoreDoneState({required this.volumeLastSeance});
+  TrainingState copyWith({
+    Json? routine,
+    bool? isLoading,
+    bool? isError,
+    String? errorMessage,
+    bool? storeDone,
+    double? volume
+  }){
+    return TrainingState(
+      routine: routine ?? this.routine,
+      isLoading: isLoading ?? this.isLoading,
+      isError: isError ?? this.isError,
+      errorMessage: errorMessage ?? this.errorMessage,
+      storeDone: storeDone ?? this.storeDone,
+      volume: volume ?? this.volume
+    );
+  }
 }

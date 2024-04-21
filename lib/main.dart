@@ -1,13 +1,10 @@
+import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sizer/flutter_sizer.dart';
-import 'package:logger/logger.dart';
-import 'package:pvmp/bloc/cubit/citation_cubit.dart';
-import 'package:pvmp/bloc/cubit/connexion_cubit.dart';
-import 'package:pvmp/bloc/cubit/exercice_cubit.dart';
-import 'package:pvmp/bloc/cubit/routine_cubit.dart';
-import 'package:pvmp/bloc/cubit/training_cubit.dart';
+import 'package:pvmp/bloc/cubit/congrat_cubit.dart';
+import 'package:pvmp/bloc/cubit/session_cubit.dart';
 import 'package:pvmp/bloc/pvmp_observer.dart';
-import 'package:pvmp/bloc/state/connexion_state.dart';
+import 'package:pvmp/bloc/state/session_state.dart';
 import 'package:pvmp/flutter_flow/flutter_flow_theme.dart';
 import 'package:pvmp/screen/auth/forgot_password.dart';
 import 'package:pvmp/screen/auth/login.dart';
@@ -27,76 +24,80 @@ import 'package:pvmp/screen/training_plan.dart';
 
 void main() {
   Bloc.observer = PvmpObserver();
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  MyApp({super.key});
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     final ThemeMode themeMode = FlutterFlowTheme.themeMode;
     return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (context) => ConnexionCubit(),
-        ),
-        BlocProvider(
-          create: (context) => CitationCubit(),
-        ),
-        BlocProvider(
-          create: (context) => ExerciceCubit(),
-        ),
-        BlocProvider(
-          create: (context) => RoutineCubit(),
-        ),
-        BlocProvider(
-          create: (context) => TrainingCubit(),
-        ),
-      ], 
-      child: BlocConsumer<ConnexionCubit, ConnexionState>(
-        listener: (context, state) {
-          if(state is ConnexionErrorState) {
-            Logger().e(state.error);
-          }
-        },
-        builder: (context, state) {
-          return FlutterSizer(
-            builder: (context, orientation, screenType) {
-              return MaterialApp(
-                debugShowCheckedModeBanner: false,
-                title: 'PVMP',
-                theme: ThemeData(
-                    brightness: Brightness.light,
-                ),
-                darkTheme: ThemeData(
-                  brightness: Brightness.dark,
-                ),
-                themeMode: themeMode,
-                initialRoute: Splashscreen.routeName,
-                routes: {
-                  Splashscreen.routeName : (ctx) => Splashscreen(),
-                  HomePageScreen.routeName : (ctx) => HomePageScreen(),
-                  Login.routeName : (ctx) => Login(),
-                  Register.routeName : (ctx) => Register(),
-                  ForgotPasswordPage.routeName : (ctx) => ForgotPasswordPage(),
-                  RoutineScreen.routeName : (ctx) => RoutineScreen(),
-                  ChooseRoutineScreen.routeName : (ctx) => ChooseRoutineScreen(),
-                  LeaderBoardScreen.routeName : (ctx) => LeaderBoardScreen(),
-                  TrainingPlanScreen.routeName : (ctx) => TrainingPlanScreen(),
-                  MyFriendsScreen.routeName : (ctx) => MyFriendsScreen(),
-                  MyAccountScreen.routeName : (ctx) => MyAccountScreen(),
-
-                  RoutineEditScreen.routeName : (ctx) => RoutineEditScreen(),
-                  TrainingScreen.routeName : (ctx) => TrainingScreen(),
-                  CongratScreen.routeName : (ctx) => CongratScreen(),
-            },);
+        //Ici on met uniquement le cubit qui doivent être accéder partout
+        providers: [
+          BlocProvider(
+            create: (context) => SessionCubit(),
+          ),
+          BlocProvider(
+            create: (context) => CongratCubit(),
+          ),
+        ],
+        child: BlocListener<SessionCubit, SessionState>(
+          listener: (context, state) {
+            if (state.isError) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                Flushbar(
+                  messageText: Text(
+                    state.errorMessage!,
+                    style: FlutterFlowTheme.of(context).bodyMedium,
+                  ),
+                  backgroundColor: FlutterFlowTheme.of(context).error,
+                  duration: const Duration(seconds: 3),
+                  flushbarPosition: FlushbarPosition.BOTTOM,
+                  flushbarStyle: FlushbarStyle.FLOATING,
+                ).show(context);
+              });
             }
-          );
-          
-        },
-      )
-    );
+            if (state.connexion == null) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                navigatorKey.currentState!.pushReplacementNamed(Login.routeName);
+              });
+            }
+          },
+          child: FlutterSizer(builder: (context, orientation, screenType) {
+            return MaterialApp(
+              debugShowCheckedModeBanner: false,
+              navigatorKey: navigatorKey,
+              title: 'PVMP',
+              theme: ThemeData(
+                brightness: Brightness.light,
+              ),
+              darkTheme: ThemeData(
+                brightness: Brightness.dark,
+              ),
+              themeMode: themeMode,
+              initialRoute: Splashscreen.routeName,
+              routes: {
+                Splashscreen.routeName: (ctx) => Splashscreen(),
+                HomePageScreen.routeName: (ctx) => HomePageScreen(),
+                Login.routeName: (ctx) => Login(),
+                Register.routeName: (ctx) => Register(),
+                ForgotPasswordPage.routeName: (ctx) => ForgotPasswordPage(),
+                RoutineScreen.routeName: (ctx) => RoutineScreen(),
+                ChooseRoutineScreen.routeName: (ctx) => ChooseRoutineScreen(),
+                LeaderBoardScreen.routeName: (ctx) => LeaderBoardScreen(),
+                TrainingPlanScreen.routeName: (ctx) => TrainingPlanScreen(),
+                MyFriendsScreen.routeName: (ctx) => MyFriendsScreen(),
+                MyAccountScreen.routeName: (ctx) => MyAccountScreen(),
+                RoutineEditScreen.routeName: (ctx) => RoutineEditScreen(),
+                TrainingScreen.routeName: (ctx) => TrainingScreen(),
+                CongratScreen.routeName: (ctx) => CongratScreen(),
+              },
+            );
+          }),
+        ));
   }
 }

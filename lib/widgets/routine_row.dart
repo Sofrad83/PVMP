@@ -39,14 +39,14 @@ class RoutineRow extends StatelessWidget {
             width: 70.0,
             height: 70.0,
             decoration: BoxDecoration(
-              color: theme.primary.withAlpha(81),
+              color: theme.info.withAlpha(81),
               borderRadius:
                   BorderRadius.circular(50),
             ),
             padding: EdgeInsets.fromLTRB(0, 5, 0, 5),
             alignment: AlignmentDirectional(
                 0.0, 0.0),
-            child: FaIcon(FontAwesomeIcons.dumbbell, color: theme.primary,),
+            child: FaIcon(FontAwesomeIcons.repeat, color: theme.info,),
           ),
           SizedBox(width: 20,),
           Column(

@@ -1,18 +1,23 @@
-abstract class RoutineState {}
+class RoutineState {
+  final List? routines;
+  final bool isError;
+  final bool isLoading;
+  final String? errorMessage;
 
-class RoutineLoadingState extends RoutineState {}
+  RoutineState({this.routines, this.isError = false, this.isLoading = true, this.errorMessage});
 
-class RoutineLoadedState extends RoutineState {
-  final List? mesRoutines;
-  RoutineLoadedState({this.mesRoutines});
-}
+  RoutineState copyWith({
+    List? routines,
+    bool? isLoading,
+    bool? isError,
+    String? errorMessage
+  }){
+    return RoutineState(
+      routines: routines ?? this.routines,
+      isLoading: isLoading ?? this.isLoading,
+      isError: isError ?? this.isError,
+      errorMessage: errorMessage ?? this.errorMessage
+    );
+  }
 
-class RoutineErrorState extends RoutineState {
-  final String error;
-  RoutineErrorState(this.error);
-}
-
-class RoutineStoreDoneState extends RoutineState {
-  final String message;
-  RoutineStoreDoneState(this.message);
 }
