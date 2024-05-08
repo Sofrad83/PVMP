@@ -13,6 +13,10 @@ class RoutineCubit extends Cubit<RoutineState> {
     emit(RoutineState());
   }
 
+  void setError({required bool isError, String errorMessage = ""}){
+    emit(state.copyWith(isError: isError, errorMessage: errorMessage, isLoading: false));
+  }
+
   void getAllRoutines() async {
     try {
       Response response = await RoutineProvider.getAllRoutines();
@@ -24,17 +28,17 @@ class RoutineCubit extends Cubit<RoutineState> {
         case 201:
           var responseData = json.decode(data);
           if(responseData["error"] == true){
-            emit(state.copyWith(isError: true, errorMessage: responseData["error_message"], isLoading: false));
+            setError(isError: true, errorMessage: responseData["error_message"]);
           }else{
             emit(state.copyWith(routines: responseData["data"], isError: false, isLoading: false));
           }
           break;
         default:
-          emit(state.copyWith(isError: true, errorMessage: "Une erreur est survenue lors de la récupération des routines. Actualisez cette page.", isLoading: false));
+          setError(isError: true, errorMessage: "Une erreur est survenue lors de la récupération des routines. Actualisez cette page.");
       }
-    } on DioException catch (e) {
+    } catch (e) {
       logger.e(e);
-      emit(state.copyWith(isError: true, errorMessage: "Une erreur est survenue lors de la récupération des routines. Actualisez cette page.", isLoading: false));
+      setError(isError: true, errorMessage: "Une erreur est survenue lors de la récupération des routines. Actualisez cette page.");
     }
   }
 
@@ -48,11 +52,11 @@ class RoutineCubit extends Cubit<RoutineState> {
       if(statusCode! < 300){
         reset();
       }else{
-        emit(state.copyWith(isError: true, errorMessage: "Une erreur est survenue lors de la suppression de la routine"));
+        setError(isError: true, errorMessage: "Une erreur est survenue lors de la suppression de la routine");
       }
-    } on DioException catch (e) {
+    } catch (e) {
       logger.e(e);
-      emit(state.copyWith(isError: true, errorMessage: "Une erreur est survenue lors de la suppression de la routine"));
+      setError(isError: true, errorMessage: "Une erreur est survenue lors de la suppression de la routine");
     }
   }
 }

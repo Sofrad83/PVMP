@@ -37,7 +37,7 @@ class RoutineScreen extends StatelessWidget {
                 duration: const Duration(seconds: 3),
                 flushbarPosition: FlushbarPosition.BOTTOM,
                 flushbarStyle: FlushbarStyle.FLOATING,
-              ).show(context);
+              ).show(context).then((value) => context.read<RoutineCubit>().setError(isError: false));
             });
           }
           if (state.isLoading) {

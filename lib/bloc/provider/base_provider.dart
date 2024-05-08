@@ -3,14 +3,14 @@ import 'dart:io';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:pvmp/config/PVMPConfigLOCAL.dart' as PVMPConfig;
 
 class BaseProvider{
 
   static Future<Dio> getDio() async{
     BaseOptions options = BaseOptions(
-        baseUrl: PVMPConfig.BASE_URL,
+        baseUrl: dotenv.env["BASE_URL_${dotenv.env["ENV"]}"]!,
         headers: {
           "Accept": "application/json"
         },

@@ -54,7 +54,7 @@ class Register extends StatelessWidget {
                 duration: const Duration(seconds: 3),
                 flushbarPosition: FlushbarPosition.BOTTOM,
                 flushbarStyle: FlushbarStyle.FLOATING,
-              ).show(context);
+              ).show(context).then((value) => context.read<RegisterCubit>().setError(isError: false));
             });
           }
           if (state.connexion != null) {

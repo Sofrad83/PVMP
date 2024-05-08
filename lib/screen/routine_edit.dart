@@ -81,7 +81,7 @@ class RoutineEditScreen extends StatelessWidget {
                 duration: const Duration(seconds: 3),
                 flushbarPosition: FlushbarPosition.BOTTOM,
                 flushbarStyle: FlushbarStyle.FLOATING,
-              ).show(context);
+              ).show(context).then((value) => context.read<RoutineEditCubit>().resetError());
               context.read<RoutineEditCubit>().resetError();
             });
           }

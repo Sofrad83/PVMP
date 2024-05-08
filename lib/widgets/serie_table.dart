@@ -35,12 +35,15 @@ class SerieTable extends StatelessWidget {
               decoration: BoxDecoration(border: Border(bottom: BorderSide(color: theme.lineColor, width: 2))),
               child: Row(
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.only(topLeft: Radius.circular(12), bottomRight: Radius.circular(12)),
-                    child: Image.network(
-                      exercice["img_url"],
-                      width: 60,
-                      height: 60,
+                  InkWell(
+                    onTap: () => context.read<TrainingCubit>().setZoom(zoom: true, zoomUrl: exercice["img_url"]),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.only(topLeft: Radius.circular(12), bottomRight: Radius.circular(12)),
+                      child: Image.network(
+                        exercice["img_url"],
+                        width: 60,
+                        height: 60,
+                      ),
                     ),
                   ),
                   Expanded(
@@ -156,13 +159,16 @@ class SerieTable extends StatelessWidget {
                   ),
                   Expanded(
                     child: InkWell(
-                      onTap: () => context.read<TrainingCubit>().addSerie(
-                        serie: {
-                          "nb_rep": int.parse(repController.text),
-                          'poids': double.parse(poidsController.text),
-                          'exercice_id': exercice["id"]
-                        }
-                      ),
+                      onTap: () {
+                        FocusScope.of(context).unfocus();
+                        context.read<TrainingCubit>().addSerie(
+                          serie: {
+                            "nb_rep": int.parse(repController.text),
+                            'poids': double.parse(poidsController.text),
+                            'exercice_id': exercice["id"]
+                          }
+                        );
+                      } ,
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(25,0,25,0),
                         child: Container(

@@ -9,6 +9,10 @@ import 'package:pvmp/utilities/logger.dart';
 class ChooseRoutineCubit extends Cubit<ChooseRoutineState> {
   ChooseRoutineCubit() : super(ChooseRoutineState());
 
+  void setError({required bool isError, String errorMessage = ""}){
+    emit(state.copyWith(isError: isError, errorMessage: errorMessage, isLoading: false));
+  }
+
   void getAllRoutinesLastSeries() async {
     try {
       Response response = await RoutineProvider.getAllRoutinesLastSeries();
@@ -18,16 +22,16 @@ class ChooseRoutineCubit extends Cubit<ChooseRoutineState> {
       if(statusCode! < 300){
         var responseData = json.decode(data);
         if(responseData["error"] == true){
-          emit(state.copyWith(isError: true, isLoading: false, errorMessage: responseData["error_message"]));
+          setError(isError: true, errorMessage: responseData["error_message"]);
         }else{
           emit(state.copyWith(isError: false, isLoading: false, routines: responseData["data"]));
         }
       }else{
-        emit(state.copyWith(isError: true, isLoading: false, errorMessage: "Une erreur est survenue lors de la récupération des routines"));
+        setError(isError: true, errorMessage: "Une erreur est survenue lors de la récupération des routines");
       }
-    } on DioException catch (e) {
+    } catch (e) {
       logger.e(e);
-      emit(state.copyWith(isError: true, isLoading: false, errorMessage: "Une erreur est survenue lors de la récupération des routines"));
+      setError(isError: true, errorMessage: "Une erreur est survenue lors de la récupération des routines");
     }
   }
 }

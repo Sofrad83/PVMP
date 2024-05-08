@@ -123,7 +123,7 @@ class HomePageScreen extends StatelessWidget {
                 duration: const Duration(seconds: 3),
                 flushbarPosition: FlushbarPosition.BOTTOM,
                 flushbarStyle: FlushbarStyle.FLOATING,
-              ).show(context);
+              ).show(context).then((value) => context.read<HomeCubit>().setError(isError: false));
             });
           }
           if (state.isLoading) {

@@ -21,8 +21,8 @@ class Login extends StatelessWidget {
 
   final mainform = GlobalKey<FormState>();
   TextEditingController emailController =
-      TextEditingController(text: "test1@test.fr");
-  TextEditingController mdpController = TextEditingController(text: "123456");
+      TextEditingController(text: "sofiane.radjah@gmail.com");
+  TextEditingController mdpController = TextEditingController(text: "PM\$ofiane0311");
 
   bool validateEmail(String mail) {
     return RegExp(
@@ -44,16 +44,18 @@ class Login extends StatelessWidget {
       child: BlocBuilder<LoginCubit, LoginState>(
         builder: (context, state) {
           if (state.isError) {
-            Flushbar(
-              messageText: Text(
-                state.errorMessage!,
-                style: FlutterFlowTheme.of(context).bodyMedium,
-              ),
-              backgroundColor: FlutterFlowTheme.of(context).error,
-              duration: const Duration(seconds: 3),
-              flushbarPosition: FlushbarPosition.BOTTOM,
-              flushbarStyle: FlushbarStyle.FLOATING,
-            ).show(context);
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              Flushbar(
+                messageText: Text(
+                  state.errorMessage!,
+                  style: FlutterFlowTheme.of(context).bodyMedium,
+                ),
+                backgroundColor: FlutterFlowTheme.of(context).error,
+                duration: const Duration(seconds: 3),
+                flushbarPosition: FlushbarPosition.BOTTOM,
+                flushbarStyle: FlushbarStyle.FLOATING,
+              ).show(context).then((value) => context.read<LoginCubit>().setError(isError: false));
+            });
           }
           if (state.connexion != null) {
             context

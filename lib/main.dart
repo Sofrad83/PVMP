@@ -1,5 +1,7 @@
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_sizer/flutter_sizer.dart';
 import 'package:pvmp/bloc/cubit/congrat_cubit.dart';
 import 'package:pvmp/bloc/cubit/session_cubit.dart';
@@ -22,7 +24,8 @@ import 'package:pvmp/screen/training/congrat.dart';
 import 'package:pvmp/screen/training/training.dart';
 import 'package:pvmp/screen/training_plan.dart';
 
-void main() {
+void main() async{
+  await dotenv.load(fileName: ".env");
   Bloc.observer = PvmpObserver();
   runApp(MyApp());
 }
@@ -34,6 +37,9 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
     final ThemeMode themeMode = FlutterFlowTheme.themeMode;
     return MultiBlocProvider(
         //Ici on met uniquement le cubit qui doivent être accéder partout
@@ -58,7 +64,7 @@ class MyApp extends StatelessWidget {
                   duration: const Duration(seconds: 3),
                   flushbarPosition: FlushbarPosition.BOTTOM,
                   flushbarStyle: FlushbarStyle.FLOATING,
-                ).show(context);
+                ).show(context).then((value) => context.read<SessionCubit>().setError(isError: false));
               });
             }
             if (state.connexion == null) {

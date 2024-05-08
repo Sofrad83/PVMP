@@ -93,7 +93,7 @@ class TrainingScreen extends StatelessWidget {
                 duration: const Duration(seconds: 3),
                 flushbarPosition: FlushbarPosition.BOTTOM,
                 flushbarStyle: FlushbarStyle.FLOATING,
-              ).show(context);
+              ).show(context).then((value) => context.read<TrainingCubit>().setError(isError: false));
             });
           }
           if (state.isLoading) {
@@ -108,108 +108,137 @@ class TrainingScreen extends StatelessWidget {
                   CongratScreen.routeName, (route) => false);
             });
           }
-          logger.d(state.isLoading);
-          return SafeArea(
-            child: Scaffold(
-                backgroundColor: theme.secondaryBackground,
-                body: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    Image.asset(
-                      "assets/images/bg/5.jpg",
-                      fit: BoxFit.cover,
-                      opacity: const AlwaysStoppedAnimation(.2),
-                    ),
-                    Row(
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              Expanded(
-                                child: SingleChildScrollView(
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.max,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsetsDirectional
-                                            .fromSTEB(16.0, 0.0, 16.0, 0.0),
-                                        child: Column(
-                                            mainAxisSize: MainAxisSize.max,
-                                            children: [
-                                              PageHeader(
-                                                headerTitle: "S'exercer",
-                                                headerDescription:
-                                                    "Entrainement",
-                                              ),
-                                            ]),
-                                      ),
-                                      !state.isLoading
-                                          ? Column(
+          return PopScope(
+            canPop: !state.zoom,
+            onPopInvoked: (didPop) {
+              if(state.zoom){
+                context.read<TrainingCubit>().setZoom(zoom: false);
+              }
+            },
+            child: SafeArea(
+              child: Scaffold(
+                  backgroundColor: theme.secondaryBackground,
+                  body: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      Image.asset(
+                        "assets/images/bg/5.jpg",
+                        fit: BoxFit.cover,
+                        opacity: const AlwaysStoppedAnimation(.2),
+                      ),
+                      Row(
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.max,
+                              children: [
+                                Expanded(
+                                  child: SingleChildScrollView(
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.max,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsetsDirectional
+                                              .fromSTEB(16.0, 0.0, 16.0, 0.0),
+                                          child: Column(
+                                              mainAxisSize: MainAxisSize.max,
                                               children: [
-                                                MyFfButton(
-                                                  label: "Terminer la séance",
-                                                  onPressed: () => endSeance(
-                                                      context, routine, theme),
-                                                  width: 90.w,
+                                                PageHeader(
+                                                  headerTitle: "S'exercer",
+                                                  headerDescription:
+                                                      "Entrainement",
                                                 ),
-                                                Divider(
-                                                  color: theme.lineColor,
-                                                ),
-                                                Column(
-                                                  children: state
-                                                      .routine!["exercices"]
-                                                      .map<Widget>(
-                                                          (e) => SerieTable(
-                                                                exercice: e,
-                                                              ))
-                                                      .toList(),
-                                                ),
-                                                Divider(
-                                                  color: theme.lineColor,
-                                                ),
-                                                MyFfButton(
-                                                  label: "Terminer la séance",
-                                                  onPressed: () => endSeance(
-                                                      context, routine, theme),
-                                                  width: 90.w,
-                                                ),
-                                                SizedBox(
-                                                  height: 12.h,
-                                                )
-                                              ],
-                                            )
-                                          : Center(
-                                              child: CircularProgressIndicator(
-                                                  color: theme.primary),
-                                            )
-                                    ],
+                                              ]),
+                                        ),
+                                        !state.isLoading
+                                            ? Column(
+                                                children: [
+                                                  MyFfButton(
+                                                    label: "Terminer la séance",
+                                                    onPressed: () => endSeance(
+                                                        context, routine, theme),
+                                                    width: 90.w,
+                                                  ),
+                                                  Divider(
+                                                    color: theme.lineColor,
+                                                  ),
+                                                  Column(
+                                                    children: state
+                                                        .routine!["exercices"]
+                                                        .map<Widget>(
+                                                            (e) => SerieTable(
+                                                                  exercice: e,
+                                                                ))
+                                                        .toList(),
+                                                  ),
+                                                  Divider(
+                                                    color: theme.lineColor,
+                                                  ),
+                                                  MyFfButton(
+                                                    label: "Terminer la séance",
+                                                    onPressed: () => endSeance(
+                                                        context, routine, theme),
+                                                    width: 90.w,
+                                                  ),
+                                                  SizedBox(
+                                                    height: 12.h,
+                                                  )
+                                                ],
+                                              )
+                                            : Center(
+                                                child: CircularProgressIndicator(
+                                                    color: theme.primary),
+                                              )
+                                      ],
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Container(
+                            height: 10.h,
+                            decoration: BoxDecoration(
+                                color: theme.primaryBackground,
+                                borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(25),
+                                    topRight: Radius.circular(25)),
+                                border: Border.all(color: theme.lineColor)),
+                            child: Chronometer(),
+                          )
+                        ],
+                      ),
+                      Visibility(
+                        visible: state.zoom,
+                        child: GestureDetector(
+                          onTap: () => context.read<TrainingCubit>().setZoom(zoom: false),
+                          child: Container(
+                            width: 100.w,
+                            height: 100.h,
+                            color: Colors.black.withAlpha(200),
+                            child: Center(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(25),
+                                child: Image.network(
+                                  state.zoomUrl,
+                                  errorBuilder: (context, error, stackTrace) => Container(),
+                                  width: 95.w,
+                                  height: 95.w,
+                                ),
+                              )
+                            ),
                           ),
                         ),
-                      ],
-                    ),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Container(
-                          height: 10.h,
-                          decoration: BoxDecoration(
-                              color: theme.primaryBackground,
-                              borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(25),
-                                  topRight: Radius.circular(25)),
-                              border: Border.all(color: theme.lineColor)),
-                          child: Chronometer(),
-                        )
-                      ],
-                    )
-                  ],
-                )),
+                      )
+                    ],
+                  )),
+            ),
           );
         },
       ),

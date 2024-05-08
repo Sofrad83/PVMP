@@ -9,12 +9,17 @@ import 'package:pvmp/bloc/state/register_state.dart';
 import 'package:pvmp/models/connexion.dart';
 import 'package:pvmp/models/user.dart';
 import 'package:pvmp/utilities/logger.dart';
+import 'package:pvmp/utilities/settings_manager.dart';
 
 class RegisterCubit extends Cubit<RegisterState> {
   RegisterCubit() : super(RegisterState());
 
   void toggleMdpVisible(){
     emit(state.copyWith(mdpIsVisible: !state.mdpIsVisible));
+  }
+
+  void setError({required bool isError, String errorMessage = ""}){
+    emit(state.copyWith(isError: isError, errorMessage: errorMessage));
   }
 
   Future<void> register(String name, String mail, String mdp) async {
@@ -26,16 +31,18 @@ class RegisterCubit extends Cubit<RegisterState> {
       if(statusCode! < 300){
         var responseData = json.decode(data);
         if(responseData["error"] == true){
-          emit(state.copyWith(isError: true, errorMessage: responseData["error_message"]));
+          setError(isError: true, errorMessage: responseData["error_message"]);
         }else{
+          await SettingsManager.setMail(mail);
+          await SettingsManager.setMdp(mdp);
           emit(state.copyWith(connexion: Connexion(user: User.fromJson(responseData["user"])), isError: false));
         }
       }else{
-        emit(state.copyWith(isError: true, errorMessage: "Une erreur est survenue lors de la création de votre compte. Réessayez"));
+        setError(isError: true, errorMessage: "Une erreur est survenue lors de la création de votre compte. Réessayez");
       }
-    } on DioException catch (e) {
+    } catch (e) {
       logger.e(e);
-      emit(state.copyWith(isError: true, errorMessage: "Une erreur est survenue lors de la création de votre compte. Réessayez"));
+      setError(isError: true, errorMessage: "Une erreur est survenue lors de la création de votre compte. Réessayez");
     }
   }
 }

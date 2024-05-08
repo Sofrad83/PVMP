@@ -10,6 +10,9 @@ import 'package:pvmp/utilities/logger.dart';
 class TrainingCubit extends Cubit<TrainingState> {
   TrainingCubit() : super(TrainingState());
 
+  void setError({required bool isError, String errorMessage = ""}){
+    emit(state.copyWith(isError: isError, errorMessage: errorMessage, isLoading: false));
+  }
 
   void init({required Json routine}){
     (routine["exercices"] as List).forEach((exo) {
@@ -20,6 +23,10 @@ class TrainingCubit extends Cubit<TrainingState> {
     logger.d(routine);
 
     emit(state.copyWith(routine: routine, isLoading: false));
+  }
+
+  setZoom({required bool zoom, String zoomUrl = ""}){
+    emit(state.copyWith(zoom: zoom, zoomUrl: zoomUrl));
   }
 
   void removeSerie({required Json serie}){
@@ -81,11 +88,11 @@ class TrainingCubit extends Cubit<TrainingState> {
       if(statusCode! < 300){
         emit(state.copyWith(storeDone: true, volume: double.parse(responseData["data"]["volume"].toString())));
       }else{
-        emit(state.copyWith(isError: true, isLoading: false, errorMessage: "Une erreur est survenue lors de l'enregistrement de la séance"));
+        setError(isError: true, errorMessage: "Une erreur est survenue lors de l'enregistrement de la séance");
       }
     } on DioException catch (e) {
       logger.e(e);
-      emit(state.copyWith(isError: true, isLoading: false, errorMessage: "Une erreur est survenue lors de l'enregistrement de la séance"));
+      setError(isError: true, errorMessage: "Une erreur est survenue lors de l'enregistrement de la séance");
     }
   }
 }
