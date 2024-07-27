@@ -9,7 +9,7 @@ class SeanceProvider{
     Dio dio = await BaseProvider.getDio();
     List mesSeries = [];
     (routine["exercices"] as List).forEach((exercice) {
-      mesSeries.addAll(exercice["series"]);
+      mesSeries.addAll(exercice["last_series"]);
     });
     Map<String, dynamic> data = {
       "series" : json.encode(mesSeries),

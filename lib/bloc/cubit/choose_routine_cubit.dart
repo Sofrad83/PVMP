@@ -27,6 +27,7 @@ class ChooseRoutineCubit extends Cubit<ChooseRoutineState> {
           emit(state.copyWith(isError: false, isLoading: false, routines: responseData["data"]));
         }
       }else{
+        logger.e(json.decode(data));
         setError(isError: true, errorMessage: "Une erreur est survenue lors de la récupération des routines");
       }
     } catch (e) {

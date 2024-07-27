@@ -16,7 +16,8 @@ class TrainingCubit extends Cubit<TrainingState> {
 
   void init({required Json routine}){
     (routine["exercices"] as List).forEach((exo) {
-      (exo["series"] as List).forEach((serie) {
+      logger.e(exo);
+      (exo["last_series"] as List).forEach((serie) {
         (serie as Json).addAll({"done" : false});
       });
     });
@@ -33,7 +34,7 @@ class TrainingCubit extends Cubit<TrainingState> {
     Json maRoutine = state.routine!;
     (maRoutine["exercices"] as List).forEach((exo) {
       Json? serieToRemove;
-      (exo["series"] as List).forEach((maSerie) {
+      (exo["last_series"] as List).forEach((maSerie) {
         if(maSerie["serie_number"] == serie["serie_number"] && maSerie["exercice_id"] == serie["exercice_id"]){
           if(maSerie["done"]){
             serieToRemove = maSerie;
@@ -41,8 +42,8 @@ class TrainingCubit extends Cubit<TrainingState> {
         }
       });
       if(serieToRemove != null){
-        (exo["series"] as List).removeWhere((element) => element["serie_number"] == serieToRemove!["serie_number"]);
-        (exo["series"] as List).asMap().forEach((index, maSerie) {
+        (exo["last_series"] as List).removeWhere((element) => element["serie_number"] == serieToRemove!["serie_number"]);
+        (exo["last_series"] as List).asMap().forEach((index, maSerie) {
           maSerie["serie_number"] = index + 1;
         });
       }
@@ -54,7 +55,7 @@ class TrainingCubit extends Cubit<TrainingState> {
   void confirmSerie({required Json serie}){
     Json maRoutine = state.routine!;
     (maRoutine["exercices"] as List).forEach((exo) {
-      (exo["series"] as List).forEach((maSerie) {
+      (exo["last_series"] as List).forEach((maSerie) {
         if(maSerie["serie_number"] == serie["serie_number"] && maSerie["exercice_id"] == serie["exercice_id"]){
           maSerie["done"] = true;
         }
@@ -69,8 +70,8 @@ class TrainingCubit extends Cubit<TrainingState> {
     (maRoutine["exercices"] as List).forEach((exo) {
       if(exo['id'] == serie['exercice_id']){
         serie["done"] = true;
-        (exo['series'] as List).add(serie);
-        (exo["series"] as List).asMap().forEach((index, maSerie) {
+        (exo['last_series'] as List).add(serie);
+        (exo["last_series"] as List).asMap().forEach((index, maSerie) {
           maSerie["serie_number"] = index + 1;
         });
       }

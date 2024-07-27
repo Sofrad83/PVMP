@@ -64,7 +64,7 @@ class TrainingScreen extends StatelessWidget {
   bool checkSeriesDone(Json routine) {
     bool done = true;
     (routine["exercices"] as List).forEach((exercice) {
-      (exercice["series"] as List).forEach((serie) {
+      (exercice["last_series"] as List).forEach((serie) {
         if (serie["done"] != true) {
           done = false;
         }

@@ -38,8 +38,6 @@ class SplashCubit extends Cubit<SplashState> {
           //ici on est pas connecté du coup on essaye de login avec les id enregistré
           var mail = await SettingsManager.getMail();
           var mdp = await SettingsManager.getMdp();
-            logger.e(mail);
-            logger.e(mdp);
 
           if(mail != null && mdp != null){
             login(mail, mdp);

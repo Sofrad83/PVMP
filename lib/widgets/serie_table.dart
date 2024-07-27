@@ -101,7 +101,7 @@ class SerieTable extends StatelessWidget {
             Container(
               decoration: BoxDecoration(border: Border(bottom: BorderSide(color: theme.lineColor, width: 2))),
               child: Column(
-                children: exercice["series"].map<Widget>(
+                children: exercice["last_series"].map<Widget>(
                   (serie) => SerieRow(
                     serie: serie, 
                     onTap: () {
